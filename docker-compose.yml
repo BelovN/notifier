@@ -1,13 +1,17 @@
-
+version: '3.3'
 services:
   migrate:
+    restart: "no"
     image: medoley/migrator:latest
     environment:
       MIGRATIONS_PATH: "file:///app/db/migrations"
-      DATABASE_URL: "sqlite3:///app/sql_data/notifier.sqlite"
+      DATABASE_URL: "sqlite3:///app/sqlite_data/notifier.sqlite"
     volumes:
       - .:/app
 
   notifier:
+    restart: "always"
     image: medoley/notifier:latest
     env_file: .env
+    volumes:
+      - ./sqlite_data:/app/sqlite_data

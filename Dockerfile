@@ -8,14 +8,19 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o notifier
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o notifier
 
-FROM alpine:latest
+FROM debian:bullseye-slim
 
-WORKDIR /root/
+RUN apt-get update && \
+    apt-get install -y libc6 ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /app/notifier /root/notifier
+WORKDIR /app
 
-RUN chmod +x /root/notifier && mkdir /root/sqlite_data
+COPY --from=builder /app/notifier /app/notifier
 
-CMD ["/root/notifier"]
+RUN chmod +x /app/notifier && mkdir /app/sqlite_data
+
+CMD ["/app/notifier"]
