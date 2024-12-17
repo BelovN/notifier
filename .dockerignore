@@ -1,0 +1,5 @@
+.idea
+.gitignore
+docker-compose.yml
+Dockerfile
+sqlite_data

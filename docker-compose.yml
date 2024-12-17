@@ -1,0 +1,13 @@
+
+services:
+  migrate:
+    image: medoley/migrator:latest
+    environment:
+      MIGRATIONS_PATH: "file:///app/db/migrations"
+      DATABASE_URL: "sqlite3:///app/sql_data/notifier.sqlite"
+    volumes:
+      - .:/app
+
+  notifier:
+    image: medoley/notifier:latest
+    env_file: .env

@@ -25,7 +25,7 @@ func (c *MeteoController) Run(ctx context.Context, tg *bot.TelegramService, upda
 
 	response, err := c.hfaceService.GetAIAnswer(weather.ToString())
 	if err != nil {
-		return nil
+		return err
 	}
 
 	if err := tg.SendMessage(update.Message.Chat.ID, response); err != nil {

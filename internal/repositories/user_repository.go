@@ -10,4 +10,5 @@ type UserRepository interface {
 	Update(ctx context.Context, user *models.User) (*models.User, error)
 	FindByUsername(ctx context.Context, username string) (*models.User, error)
 	GetOrCreateUser(ctx context.Context, username string, channelId int64) (*models.User, error)
+	FilterUsers(ctx context.Context, filters map[string]interface{}) ([]*models.User, error)
 }
