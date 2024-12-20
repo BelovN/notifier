@@ -21,6 +21,8 @@ WORKDIR /app
 
 COPY --from=builder /app/notifier /app/notifier
 
+COPY ./config /app/config
+
 RUN chmod +x /app/notifier && mkdir /app/sqlite_data
 
 CMD ["/app/notifier"]
