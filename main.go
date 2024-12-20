@@ -28,12 +28,12 @@ func main() {
 		log.Fatalf("failed to initialize Telegram service: %v", err)
 	}
 
-	meteoService := meteo.NewService(ctx)
+	meteoService := meteo.NewService(ctx, cfg)
 
-	hfaceService := hface.NewHfaceService(ctx, cfg.HfaceApiToken)
+	hfaceService := hface.NewService(ctx, cfg.HfaceApiToken, cfg)
 
 	periodicSync := periodic.NewPeriodicWeather(
-		"", *meteoService, *hfaceService, userRepo, *tgService, ctx,
+		cfg.CronSync, *meteoService, *hfaceService, userRepo, *tgService, ctx,
 	)
 
 	if err := periodicSync.Run(); err != nil {

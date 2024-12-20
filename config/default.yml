@@ -1,0 +1,13 @@
+database_path: "/app/sqlite_data/notifier.sqlite"
+
+hface:
+  timeout: 10s
+  base_url: "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct/v1/chat/completions"
+
+meteo:
+  base_url: "https://api.open-meteo.com/v1/forecast"
+  timeout: 10s
+  latitude: "44.787197"
+  longitude: "20.457273"
+
+cron: "0 9 * * *"

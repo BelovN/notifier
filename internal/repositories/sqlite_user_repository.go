@@ -87,7 +87,12 @@ func (repo *SqliteUserRepository) FilterUsers(ctx context.Context, filters map[s
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		err = rows.Close()
+		if err != nil {
+			fmt.Println("error")
+		}
+	}()
 
 	var users []*models.User
 	for rows.Next() {

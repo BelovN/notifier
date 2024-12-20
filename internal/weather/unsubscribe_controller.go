@@ -2,7 +2,7 @@ package weather
 
 import (
 	"context"
-	bot "github.com/BelovN/notifier/internal/bot"
+	"github.com/BelovN/notifier/internal/bot"
 	"github.com/BelovN/notifier/internal/repositories"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )

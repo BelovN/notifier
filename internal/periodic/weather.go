@@ -2,6 +2,7 @@ package periodic
 
 import (
 	"context"
+	"fmt"
 	"github.com/BelovN/notifier/internal/bot"
 	"github.com/BelovN/notifier/internal/hface"
 	"github.com/BelovN/notifier/internal/meteo"
@@ -10,14 +11,10 @@ import (
 	"log"
 )
 
-const (
-	DefaultTimeSheet = "0 9 * * *"
-)
-
-type PeriodicWeather struct {
+type Weather struct {
 	CronTimeSheet string
 	meteoService  meteo.Service
-	hfaceService  hface.HfaceService
+	hfaceService  hface.Service
 	userRepo      repositories.UserRepository
 	bot           bot.TelegramService
 	ctx           context.Context
@@ -26,16 +23,13 @@ type PeriodicWeather struct {
 func NewPeriodicWeather(
 	cronTimeSheet string,
 	meteoService meteo.Service,
-	hfaceService hface.HfaceService,
+	hfaceService hface.Service,
 	userRepo repositories.UserRepository,
 	bot bot.TelegramService,
 	ctx context.Context,
-) *PeriodicWeather {
+) *Weather {
 
-	if cronTimeSheet == "" {
-		cronTimeSheet = DefaultTimeSheet
-	}
-	return &PeriodicWeather{
+	return &Weather{
 		cronTimeSheet,
 		meteoService,
 		hfaceService,
@@ -45,7 +39,9 @@ func NewPeriodicWeather(
 	}
 }
 
-func (w *PeriodicWeather) periodicSync() {
+func (w *Weather) periodicSync() {
+	fmt.Println("RUN PERIODIC")
+
 	filters := map[string]interface{}{
 		"is_subscribed": true,
 	}
@@ -73,11 +69,11 @@ func (w *PeriodicWeather) periodicSync() {
 	}
 }
 
-func (w *PeriodicWeather) Run() error {
+func (w *Weather) Run() error {
 	c := cron.New()
 	if _, err := c.AddFunc(w.CronTimeSheet, w.periodicSync); err != nil {
 		return err
 	}
-	c.Run()
+	c.Start()
 	return nil
 }

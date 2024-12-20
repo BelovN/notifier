@@ -11,49 +11,52 @@ import (
 	"net/http"
 )
 
-type HfaceMessage struct {
+type Message struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
 }
 
-type HfaceRequestPayload struct {
-	Messages  []HfaceMessage `json:"messages"`
-	MaxTokens int            `json:"max_tokens"`
-	Stream    bool           `json:"stream"`
-	Seed      int            `json:"seed"`
+type RequestPayload struct {
+	Messages  []Message `json:"messages"`
+	MaxTokens int       `json:"max_tokens"`
+	Stream    bool      `json:"stream"`
+	Seed      int       `json:"seed"`
 }
 
-var SystemHfaceMessage = HfaceMessage{
-	Role:    "system",
-	Content: "You are my assistant. Say hello. Provide me with a concise summary of the current weather, including temperature, precipitation, and other relevant details. Add a humorous comment or joke related to the weather, and finish with a practical piece of advice to make the most of the day based on the conditions.",
+var SystemHfaceMessage = Message{
+	Role: "system",
+	Content: `You are my assistant. Say hello. Provide me with a concise summary of the current weather, 
+including temperature, precipitation, and other relevant details. 
+Add a humorous comment or joke related to the weather, and finish with a practical piece of advice 
+to make the most of the day based on the conditions.`,
 }
 
-type HfaceResponseMessage struct {
+type ResponseMessage struct {
 	Content string `json:"content"`
 }
 
-type HfaceResponseChoice struct {
-	Message HfaceResponseMessage `json:"message"`
+type ResponseChoice struct {
+	Message ResponseMessage `json:"message"`
 }
 
-type HfaceResponse struct {
-	Choices []HfaceResponseChoice `json:"choices"`
+type Response struct {
+	Choices []ResponseChoice `json:"choices"`
 }
 
-func (s *HfaceService) makeRequest(jsonData []byte) (*HfaceResponse, error) {
-	ctx, cancel := context.WithTimeout(s.ctx, Timeout)
+func (s *Service) makeRequest(jsonData []byte) (*Response, error) {
+	ctx, cancel := context.WithTimeout(s.Ctx, s.Cfg.Timeout)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, "POST", BaseURL, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(ctx, "POST", s.Cfg.BaseUrl, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.token))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.Token))
 	req.Header.Set("Accept", "*/*")
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := s.client.Do(req)
+	resp, err := s.Client.Do(req)
 	if err != nil {
 		return nil, errors.New("failed to execute request: " + err.Error())
 	}
@@ -70,7 +73,7 @@ func (s *HfaceService) makeRequest(jsonData []byte) (*HfaceResponse, error) {
 		}
 	}()
 
-	var hfaceResponse HfaceResponse
+	var hfaceResponse Response
 	if err := json.Unmarshal(body, &hfaceResponse); err != nil {
 		return nil, errors.New("failed to decode response: " + err.Error())
 	}

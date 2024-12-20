@@ -10,10 +10,10 @@ import (
 
 type MeteoController struct {
 	meteoService meteo.Service
-	hfaceService hface.HfaceService
+	hfaceService hface.Service
 }
 
-func NewMeteoController(meteoService meteo.Service, hfaceService hface.HfaceService) *MeteoController {
+func NewMeteoController(meteoService meteo.Service, hfaceService hface.Service) *MeteoController {
 	return &MeteoController{meteoService, hfaceService}
 }
 

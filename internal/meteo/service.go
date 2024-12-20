@@ -5,18 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/BelovN/notifier/internal/config"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"time"
-)
-
-const (
-	BaseURL          = "https://api.open-meteo.com/v1/forecast"
-	DefaultLatitude  = "44.787197"
-	DefaultLongitude = "20.457273PeriodicWeather"
-	RequestTimeout   = 10 * time.Second
 )
 
 type CurrentWeather struct {
@@ -45,20 +39,31 @@ type Response struct {
 	CurrentWeather CurrentWeather `json:"current_weather"`
 }
 
-type Service struct {
-	client  *http.Client
-	baseCtx context.Context
+type ServiceConfig struct {
+	Latitude  string
+	Longitude string
+	BaseUrl   string
+	Timeout   time.Duration
 }
 
-func NewService(ctx context.Context) *Service {
-	return &Service{client: &http.Client{}, baseCtx: ctx}
+type Service struct {
+	Client *http.Client
+	Ctx    context.Context
+
+	Cfg ServiceConfig
+}
+
+func NewService(ctx context.Context, cfg *config.Config) *Service {
+	return &Service{Client: &http.Client{}, Ctx: ctx, Cfg: ServiceConfig{
+		cfg.Meteo.Latitude, cfg.Meteo.Longitude, cfg.Meteo.BaseUrl, cfg.Meteo.Timeout,
+	}}
 }
 
 func (s *Service) makeRequest(params url.Values) ([]byte, error) {
-	ctx, cancel := context.WithTimeout(s.baseCtx, RequestTimeout)
+	ctx, cancel := context.WithTimeout(s.Ctx, s.Cfg.Timeout)
 	defer cancel()
 
-	fullURL := BaseURL + "?" + params.Encode()
+	fullURL := s.Cfg.BaseUrl + "?" + params.Encode()
 
 	req, err := http.NewRequestWithContext(ctx, "GET", fullURL, nil)
 	if err != nil {
@@ -66,7 +71,7 @@ func (s *Service) makeRequest(params url.Values) ([]byte, error) {
 	}
 	req.Header.Set("Accept", "application/json")
 
-	resp, err := s.client.Do(req)
+	resp, err := s.Client.Do(req)
 	if err != nil {
 		return nil, errors.New("failed to execute request: " + err.Error())
 	}
@@ -90,8 +95,8 @@ func (s *Service) makeRequest(params url.Values) ([]byte, error) {
 
 func (s *Service) GetCurrentWeather() (*CurrentWeather, error) {
 	params := url.Values{
-		"latitude":        {DefaultLatitude},
-		"longitude":       {DefaultLongitude},
+		"latitude":        {s.Cfg.Latitude},
+		"longitude":       {s.Cfg.Longitude},
 		"current_weather": {"true"},
 		"windspeed_unit":  {"kmh"},
 	}

@@ -3,34 +3,39 @@ package hface
 import (
 	"context"
 	"encoding/json"
+	"github.com/BelovN/notifier/internal/config"
 	"math/rand"
 	"net/http"
 	"time"
 )
 
-type HfaceService struct {
-	ctx    context.Context
-	client *http.Client
-	token  string
+type ServiceConfig struct {
+	BaseUrl string
+	Timeout time.Duration
 }
 
-const (
-	BaseURL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct/v1/chat/completions"
-	Timeout = 10 * time.Second
-)
+type Service struct {
+	Ctx    context.Context
+	Client *http.Client
+	Token  string
 
-func NewHfaceService(ctx context.Context, token string) *HfaceService {
-	return &HfaceService{ctx: ctx, token: token, client: &http.Client{}}
+	Cfg ServiceConfig
 }
 
-func (s *HfaceService) GetAIAnswer(content string) (string, error) {
+func NewService(ctx context.Context, token string, cfg *config.Config) *Service {
+	return &Service{ctx, &http.Client{}, token,
+		ServiceConfig{cfg.HFace.BaseUrl, cfg.HFace.Timeout},
+	}
+}
+
+func (s *Service) GetAIAnswer(content string) (string, error) {
 	randomNumber := rand.Intn(1000)
 
-	messages := []HfaceMessage{
+	messages := []Message{
 		SystemHfaceMessage,
 		{Role: "user", Content: content},
 	}
-	payload := HfaceRequestPayload{messages, 500, false, randomNumber}
+	payload := RequestPayload{messages, 500, false, randomNumber}
 
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
