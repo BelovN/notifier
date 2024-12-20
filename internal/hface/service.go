@@ -19,11 +19,8 @@ const (
 	Timeout = 10 * time.Second
 )
 
-func NewHfaceService(ctx context.Context, token string, client *http.Client) *HfaceService {
-	if client == nil {
-		client = &http.Client{}
-	}
-	return &HfaceService{ctx: ctx, token: token, client: client}
+func NewHfaceService(ctx context.Context, token string) *HfaceService {
+	return &HfaceService{ctx: ctx, token: token, client: &http.Client{}}
 }
 
 func (s *HfaceService) GetAIAnswer(content string) (string, error) {

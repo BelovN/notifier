@@ -15,7 +15,7 @@ import (
 const (
 	BaseURL          = "https://api.open-meteo.com/v1/forecast"
 	DefaultLatitude  = "44.787197"
-	DefaultLongitude = "20.457273"
+	DefaultLongitude = "20.457273PeriodicWeather"
 	RequestTimeout   = 10 * time.Second
 )
 
@@ -50,11 +50,8 @@ type Service struct {
 	baseCtx context.Context
 }
 
-func NewService(ctx context.Context, client *http.Client) *Service {
-	if client == nil {
-		client = &http.Client{}
-	}
-	return &Service{client: client, baseCtx: ctx}
+func NewService(ctx context.Context) *Service {
+	return &Service{client: &http.Client{}, baseCtx: ctx}
 }
 
 func (s *Service) makeRequest(params url.Values) ([]byte, error) {

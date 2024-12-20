@@ -10,12 +10,12 @@ type TelegramService struct {
 	routers []IRouter
 }
 
-func NewTelegramService(token string) (error, *TelegramService) {
+func NewTelegramService(token string) (*TelegramService, error) {
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
-	return nil, &TelegramService{bot: bot}
+	return &TelegramService{bot: bot}, nil
 }
 
 func (tg *TelegramService) AddRouters(routers ...IRouter) {

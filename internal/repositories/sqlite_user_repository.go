@@ -14,12 +14,12 @@ type SqliteUserRepository struct {
 	db *sql.DB
 }
 
-func NewSqliteUserRepository(databaseUrl string) (error, *SqliteUserRepository) {
+func NewSqliteUserRepository(databaseUrl string) (*SqliteUserRepository, error) {
 	sqliteDatabase, err := sql.Open("sqlite3", databaseUrl)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
-	return nil, &SqliteUserRepository{sqliteDatabase}
+	return &SqliteUserRepository{sqliteDatabase}, err
 }
 
 func (repo *SqliteUserRepository) FindByUsername(ctx context.Context, username string) (*models.User, error) {

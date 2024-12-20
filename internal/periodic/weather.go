@@ -7,6 +7,7 @@ import (
 	"github.com/BelovN/notifier/internal/meteo"
 	"github.com/BelovN/notifier/internal/repositories"
 	"github.com/robfig/cron/v3"
+	"log"
 )
 
 const (
@@ -65,7 +66,10 @@ func (w *PeriodicWeather) periodicSync() {
 	}
 
 	for _, user := range users {
-		w.bot.SendMessage(user.ChannelId, response)
+		err = w.bot.SendMessage(user.ChannelId, response)
+		if err != nil {
+			log.Println("error")
+		}
 	}
 }
 
@@ -74,5 +78,6 @@ func (w *PeriodicWeather) Run() error {
 	if _, err := c.AddFunc(w.CronTimeSheet, w.periodicSync); err != nil {
 		return err
 	}
+	c.Run()
 	return nil
 }

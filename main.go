@@ -18,21 +18,23 @@ func main() {
 
 	cfg := config.LoadConfigFromEnv()
 
-	err, userRepo := repositories.NewSqliteUserRepository(cfg.DbPath)
+	userRepo, err := repositories.NewSqliteUserRepository(cfg.DbPath)
 	if err != nil {
 		log.Fatalf("failed to initialize user repository: %v", err)
 	}
 
-	err, tgService := bot.NewTelegramService(cfg.TelegramApiToken)
+	tgService, err := bot.NewTelegramService(cfg.TelegramApiToken)
 	if err != nil {
 		log.Fatalf("failed to initialize Telegram service: %v", err)
 	}
 
-	meteoService := meteo.NewService(ctx, nil)
+	meteoService := meteo.NewService(ctx)
 
-	hfaceService := hface.NewHfaceService(ctx, cfg.HfaceApiToken, nil)
+	hfaceService := hface.NewHfaceService(ctx, cfg.HfaceApiToken)
 
-	periodicSync := periodic.NewPeriodicWeather("", *meteoService, *hfaceService, userRepo, *tgService, ctx)
+	periodicSync := periodic.NewPeriodicWeather(
+		"", *meteoService, *hfaceService, userRepo, *tgService, ctx,
+	)
 
 	if err := periodicSync.Run(); err != nil {
 		return
